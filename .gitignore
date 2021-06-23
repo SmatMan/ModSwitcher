@@ -1,3 +1,5 @@
 modswitcher/
 .mixin.out/
 .vscode/
+
+logs/
