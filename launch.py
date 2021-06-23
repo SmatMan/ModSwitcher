@@ -123,7 +123,10 @@ def authenticateEmail():
     }
     response = requests.post("https://authserver.mojang.com/authenticate", json=payload).json()
 
-    auth = {'username': response['selectedProfile']["name"], "uuid": response['selectedProfile']['id'], 'token': response['accessToken']}
+    auth = {'username': response['selectedProfile']["name"], "uuid": response['selectedProfile']['id'], 'token': response['accessToken'], "clientToken": response['clientToken']}
+    with open("token.json", "w") as f:
+        f.write(str(auth))
+    
     return auth
 
 def printAndGetVersion(gameDir):
@@ -138,55 +141,89 @@ def printAndGetVersion(gameDir):
         print("Not a valid version!")
         sys.exit()
 
-auth = authenticateEmail()
+def validateAndRefresh():
+    try:
+        with open("token.json", "r") as f:
+            auth = json.load(f)
+    except:
+        auth = authenticateEmail()
+        return auth 
+        
+    payload = {
+        "accessToken": auth["token"],
+    }
+    response = requests.post("https://authserver.mojang.com/validate", json=payload)
+    
+    if response.status_code == 204:
+        return auth
+    else:
+        payload = {
+            'accessToken': auth["token"],
+            'clientToken': auth["clientToken"],
+        }
+    response = requests.post("https://authserver.mojang.com/refresh", json=payload).json()
+    auth = {'username': response['selectedProfile']["name"], "uuid": response['selectedProfile']['id'], 'token': response['accessToken'], "clientToken": response['clientToken']}
+    with open("token.json", "w") as f:
+        f.write(str(auth))
+    
+    return auth
 
-username = auth["username"]
-accountuuid = auth["uuid"]
-accessToken = auth["token"]
 
-localuser = str(getpass.getuser())
-homeDir = f'C:/Users/{localuser}'
-gameDir = f'{homeDir}/AppData/Roaming/.minecraft/'
+def launch(version=None, auth=None):
+    auth = validateAndRefresh()
 
-version = printAndGetVersion(gameDir)
-natives = os.path.join(gameDir, 'versions', version, 'natives')
-clientJson = json.loads(Path(os.path.join(gameDir, 'versions', version, f'{version}.json')).read_text())
+    username = auth["username"]
+    accountuuid = auth["uuid"]
+    accessToken = auth["token"]
 
-if "inheritsFrom" in clientJson:
-    clientJson = inherit(clientJson, gameDir)
-    assetsVersion = clientJson["inheritsFrom"]
-else:
-    assetsVersion = version
+    localuser = str(getpass.getuser())
+    homeDir = f'C:/Users/{localuser}'
+    gameDir = f'{homeDir}/AppData/Roaming/.minecraft/'
 
-minecraftClass = clientJson['mainClass']
-versionType = clientJson['type']
-classPath = getClasspath(clientJson, gameDir)
+    if version == None:   
+        version = printAndGetVersion(gameDir)
+        
+    natives = os.path.join(gameDir, 'versions', version, 'natives')
+    clientJson = json.loads(Path(os.path.join(gameDir, 'versions', version, f'{version}.json')).read_text())
+
+    if "inheritsFrom" in clientJson:
+        clientJson = inherit(clientJson, gameDir)
+        assetsVersion = clientJson["inheritsFrom"]
+    else:
+        assetsVersion = version
+
+    minecraftClass = clientJson['mainClass']
+    versionType = clientJson['type']
+    classPath = getClasspath(clientJson, gameDir)
 
 
-sp.call([
-    'java',
-    f'-Djava.library.path={natives}',
-    '-Dminecraft.launcher.brand=custom-launcher',
-    '-Dminecraft.launcher.version=2.1',
-    '-cp',
-    classPath,
-    'net.fabricmc.loader.launch.knot.KnotClient',
-    '--username',
-    username,
-    '--version',
-    version,
-    '--gameDir',
-    gameDir,
-    '--assetsDir',
-    os.path.join(gameDir, 'assets'),
-    '--assetIndex',
-    assetsVersion,
-    '--uuid',
-    accountuuid,
-    '--accessToken',
-    accessToken,
-    '--userType',
-    'mojang',
-    '--versionType',
-    'release'
-])
+    sp.call([
+        'java',
+        f'-Djava.library.path={natives}',
+        '-Dminecraft.launcher.brand=custom-launcher',
+        '-Dminecraft.launcher.version=2.1',
+        '-cp',
+        classPath,
+        'net.fabricmc.loader.launch.knot.KnotClient',
+        '--username',
+        username,
+        '--version',
+        version,
+        '--gameDir',
+        gameDir,
+        '--assetsDir',
+        os.path.join(gameDir, 'assets'),
+        '--assetIndex',
+        assetsVersion,
+        '--uuid',
+        accountuuid,
+        '--accessToken',
+        accessToken,
+        '--userType',
+        'mojang',
+        '--versionType',
+        'release'
+    ])
+
+if __name__ == '__main__':
+    launch()
