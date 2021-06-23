@@ -5,3 +5,6 @@ modswitcher/
 logs/
 
 config/
+
+token.json
+__pycache__/
