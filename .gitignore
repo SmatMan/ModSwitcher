@@ -3,3 +3,5 @@ modswitcher/
 .vscode/
 
 logs/
+
+config/
