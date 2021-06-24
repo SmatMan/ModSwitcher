@@ -208,9 +208,8 @@ def launch(version=None, auth=None, javaVersion=r"C:\Program Files\Java\jdk-16.0
 
     if tweakClass != "": # check if FML // Forge, as I have custom ClassPaths setup. I didn't make documentation on how to obtain these classpaths so DM me personally on discord if want help getting them! (bren#0069)
         sp.call([
-            javaVersion,
-            '-Djava.library.path=',
-            rf"C:\Users\{localuser}\AppData\Roaming\.minecraft\bin\1.8natives"
+            r"C:\Program Files\Java\jre1.8.0_291\bin\java.exe",
+            rf'-Djava.library.path=C:\Users\{localuser}\AppData\Roaming\.minecraft\bin\1.8natives',
             '-Dminecraft.launcher.brand=custom-launcher',
             '-Dminecraft.launcher.version=2.1',
             '-cp',
