@@ -126,7 +126,7 @@ def authenticateEmail():
 
     auth = {"username": response["selectedProfile"]["name"], "uuid": response["selectedProfile"]["id"], "token": response["accessToken"], "clientToken": response["clientToken"]}
     with open("token.json", "w") as f:
-        f.write(str(auth))
+        f.write(json.dumps(auth, indent=4))
     
     return auth
 
@@ -167,11 +167,11 @@ def validateAndRefresh():
     response = requests.post("https://authserver.mojang.com/refresh", json=payload).json()
     auth = {"username": response["selectedProfile"]["name"], "uuid": response["selectedProfile"]["id"], "token": response["accessToken"], "clientToken": response["clientToken"]}
     with open("token.json", "w") as f:
-        f.write(str(auth))
+        f.write(json.dumps(auth, indent=4))
     
     return auth
 
-def launch(version=None, auth=None, javaVersion=r"C:\Program Files\Java\jdk-16.0.1\bin\java.exe"):
+def launch(version=None, auth=None, javaVersion=r"C:\Program Files\Java\jdk-16.0.1\bin\java.exe"):    
     auth = validateAndRefresh()
 
     username = auth["username"]
