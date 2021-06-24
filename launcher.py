@@ -2,6 +2,11 @@ import backend as b
 import os
 import getpass
 import shutil
+import argparse
+
+parser = argparse.ArgumentParser(description='A modswitcher minecraft launcher')
+parser.add_argument("-v", required=False, help="Version you want to launch", default=None)
+args = parser.parse_args()
 
 localuser = str(getpass.getuser())
 modsDir = f'C:/Users/{localuser}/AppData/Roaming/.minecraft/mods/'
@@ -15,17 +20,20 @@ def deleteOnlyJar(path):
 def copyAllJars(version):
     shutil.copytree(f"{modsDir}{version}", modsDir, dirs_exist_ok=True)
 
-'''
-You'll want to change these versions to whatever suits your needs
-'''
+if args.v == None:
+    '''
+    You'll want to change these versions to whatever suits your needs
+    '''
 
-print("================================================")
-print("1) LabyMod")
-print("2) Fabric 1.17")
-print("================================================")
+    print("================================================")
+    print("1) LabyMod")
+    print("2) Fabric 1.17")
+    print("================================================")
 
-choice = input("Please choose a version from above: ")
-
+    choice = input("Please choose a version from above: ")
+else:
+    choice = args.v
+    
 if choice == "1":
     deleteOnlyJar(modsDir)
     copyAllJars("1.8")
