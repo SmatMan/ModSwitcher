@@ -9,7 +9,8 @@ parser.add_argument("-v", required=False, help="Version you want to launch", def
 args = parser.parse_args()
 
 localuser = str(getpass.getuser())
-modsDir = f'C:/Users/{localuser}/AppData/Roaming/.minecraft/mods/'
+dir = f'C:/Users/{localuser}/AppData/Roaming/.minecraft'
+modsDir = rf'C:/Users/{localuser}/AppData/Roaming/.minecraft/mods/'
 
 def deleteOnlyJar(path):
     files = os.listdir(path)
@@ -20,6 +21,7 @@ def deleteOnlyJar(path):
 def copyAllJars(version):
     shutil.copytree(f"{modsDir}{version}", modsDir, dirs_exist_ok=True)
 
+
 if args.v == None:
     '''
     You'll want to change these versions to whatever suits your needs
@@ -28,6 +30,7 @@ if args.v == None:
     print("================================================")
     print("1) LabyMod")
     print("2) Fabric 1.17")
+    print("3) Forge 1.12")
     print("================================================")
 
     choice = input("Please choose a version from above: ")

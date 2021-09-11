@@ -224,7 +224,7 @@ def launch(version=None, auth=None, javaVersion=r"C:\Program Files\Java\jdk-16.0
             '--assetsDir',
             os.path.join(gameDir, 'assets'),
             '--assetIndex',
-            assetsVersion,
+            "1.8",
             '--uuid',
             accountuuid,
             '--accessToken',
@@ -265,5 +265,5 @@ def launch(version=None, auth=None, javaVersion=r"C:\Program Files\Java\jdk-16.0
             'release'
         ])
 
-if __name__ == '__main__':
-    launch()
+    if __name__ == '__main__':
+        launch()
